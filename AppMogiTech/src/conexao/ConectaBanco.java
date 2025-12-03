@@ -8,15 +8,12 @@ import java.sql.SQLException;
 
 public class ConectaBanco {
 
-    private static final String URL = "jdbc:mysql://localhost:3306/mogivendas";
-    private static final String USER = "root";
-    private static final String PASS = "563526"; 
-
-    public static Connection getConexao() throws SQLException {
+    public static Connection getConexao() {
         try {
-            return DriverManager.getConnection(URL, USER, PASS);
-        } catch (SQLException e) {
-            throw new RuntimeException("Erro na conexão: " + e.getMessage());
+            return DriverManager.getConnection(URL, USER, PASSWORD);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Erro ao conectar ao banco");
         }
     }
 }
