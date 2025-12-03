@@ -11,33 +11,36 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import javax.swing.JOptionPane;
+import modelo.Produto;
+import java.sql.*;
 
 public class ProdutoDAO {
-    
-    public void cadastrar(Produto p) {
-        String sql = "INSERT INTO produtos (nome, preco, quantidade) VALUES (?, ?, ?)";
-        
-        try (Connection conn = ConectaBanco.getConexao();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
+
+    public boolean cadastrar(Produto p) {
+        String sql = "INSERT INTO produtos(nome, preco, quantidade) VALUES (?, ?, ?)";
+
+        try (Connection con = ConectaBanco.getConexao();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+
             stmt.setString(1, p.getNome());
             stmt.setDouble(2, p.getPreco());
             stmt.setInt(3, p.getQuantidade());
-            
+
             stmt.execute();
-            JOptionPane.showMessageDialog(null, "Salvo com sucesso!");
-            
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Erro ao salvar: " + e.getMessage());
+            return true;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
         }
     }
-    
-    public List<Produto> listar() {
-        List<Produto> produtos = new ArrayList<>();
-        String sql = "SELECT * FROM produtos";
 
-        try (Connection conn = ConectaBanco.getConexao();
-             PreparedStatement stmt = conn.prepareStatement(sql);
+    public List<Produto> listar() {
+        String sql = "SELECT * FROM produtos";
+        List<Produto> lista = new ArrayList<>();
+
+        try (Connection con = ConectaBanco.getConexao();
+             PreparedStatement stmt = con.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
@@ -46,47 +49,47 @@ public class ProdutoDAO {
                 p.setNome(rs.getString("nome"));
                 p.setPreco(rs.getDouble("preco"));
                 p.setQuantidade(rs.getInt("quantidade"));
-                produtos.add(p);
+                lista.add(p);
             }
 
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Erro ao listar: " + e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        return produtos;
-    }
-    
-    public void atualizar(Produto p) {
-        String sql = "UPDATE produtos SET nome = ?, preco = ?, quantidade = ? WHERE id = ?";
 
-        try (Connection conn = ConectaBanco.getConexao();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        return lista;
+    }
+
+    public boolean atualizar(Produto p) {
+        String sql = "UPDATE produtos SET nome=?, preco=?, quantidade=? WHERE id=?";
+
+        try (Connection con = ConectaBanco.getConexao();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
 
             stmt.setString(1, p.getNome());
             stmt.setDouble(2, p.getPreco());
             stmt.setInt(3, p.getQuantidade());
-            stmt.setInt(4, p.getId()); // O ID é usado para saber QUAL alterar
+            stmt.setInt(4, p.getId());
 
-            stmt.executeUpdate();
-            JOptionPane.showMessageDialog(null, "Atualizado com sucesso!");
+            return stmt.executeUpdate() > 0;
 
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Erro ao atualizar: " + e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
         }
     }
-    
-    public void excluir(Produto p) {
-        String sql = "DELETE FROM produtos WHERE id = ?";
 
-        try (Connection conn = ConectaBanco.getConexao();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+    public boolean excluir(int id) {
+        String sql = "DELETE FROM produtos WHERE id=?";
 
-            stmt.setInt(1, p.getId());
+        try (Connection con = ConectaBanco.getConexao();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
 
-            stmt.executeUpdate();
-            JOptionPane.showMessageDialog(null, "Excluído com sucesso!");
+            stmt.setInt(1, id);
+            return stmt.executeUpdate() > 0;
 
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Erro ao excluir: " + e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
         }
     }
 }
